@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "632252934644",
+    "firebase_url": "https://worstmessengerever.firebaseio.com",
+    "project_id": "worstmessengerever",
+    "storage_bucket": "worstmessengerever.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632252934644:android:e8b8eea6029b9095",
+        "android_client_info": {
+          "package_name": "com.yourmother.android.worstmessengerever"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632252934644-1q6dma8mc79uech5nfptlm6njpsf932p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yourmother.android.worstmessengerever",
+            "certificate_hash": "1b8c7d53d286da0f2eecf552dfc791f0add01c35"
+          }
+        },
+        {
+          "client_id": "632252934644-kbpusrovtmmm2jr8guupq1fcoj595loj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIKu-nNnFAcgR9KnwNr3o5CWd8xC36jmU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "632252934644-kbpusrovtmmm2jr8guupq1fcoj595loj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

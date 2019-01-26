@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">WorstMessengerEver</string>
+    <string name="message_hint">Enter your message…</string>
+    <string name="message_text">Message Text</string>
+    <string name="email_hint">E-mail</string>
+    <string name="password_hint">Password</string>
+    <string name="already_registered_button">Already registered?</string>
+    <string name="register_button">Register!</string>
+    <string name="login_button">Login</string>
+    <string name="forgot_password_button">Forgot password</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="reset_password">Reset password</string>
+    <string name="username_hint">Username</string>
+    <string name="open_drawer">Open drawer</string>
+    <string name="close_drawer">Close drawer</string>
+    <string name="settings">Settings</string>
+    <string name="something_else">Something else</string>
+    <string name="nav_header_image_desc">Messenger navigation header image</string>
+</resources>

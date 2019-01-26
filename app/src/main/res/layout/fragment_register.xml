@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="@string/username_hint"
+        android:id="@+id/reg_username_field"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:inputType="textEmailAddress"
+        android:hint="@string/email_hint"
+        android:id="@+id/reg_email_field"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:layout_marginTop="8dp"
+        android:id="@+id/reg_password_field"
+        android:hint="@string/password_hint"
+        tools:ignore="Autofill" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:layout_marginTop="8dp"
+        android:id="@+id/reg_confirm_password_field"
+        android:hint="@string/confirm_password"
+        tools:ignore="Autofill" />
+
+    <Button
+        android:text="@string/register_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_gravity="center"
+        android:textColor="#FFFF"
+        android:id="@+id/register_button"
+        android:background="@color/colorAccent"/>
+
+    <Button
+        android:text="@string/already_registered_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp"
+        android:textAllCaps="false"
+        android:id="@+id/already_registered_button"
+        android:background="@null"
+        android:textColor="@color/colorAccent" />
+
+</LinearLayout>
