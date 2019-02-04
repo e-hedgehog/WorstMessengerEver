@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +32,8 @@ public class AuthFragment extends BaseFragment
 
     private static final String TAG = "AuthFragment";
     private static final int RC_SIGN_IN = 100;
+    private static final int NEW_INTENT_FLAGS =
+            Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK;
 
     private EditText mEmailField;
     private EditText mPasswordField;
@@ -68,8 +69,7 @@ public class AuthFragment extends BaseFragment
                 .build();
 
         if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(getActivity(), MessengerActivity.class));
-            getActivity().finish();
+            startActivity(MessengerActivity.newIntent(getActivity(), NEW_INTENT_FLAGS));
         }
     }
 
@@ -97,8 +97,8 @@ public class AuthFragment extends BaseFragment
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                startActivity(new Intent(getActivity(), MessengerActivity.class));
-                                getActivity().finish();
+                                startActivity(MessengerActivity.
+                                        newIntent(getActivity(), NEW_INTENT_FLAGS));
                             } else
                                 Toast.makeText(getActivity(), "Something is wrong",
                                         Toast.LENGTH_SHORT).show();
@@ -106,10 +106,8 @@ public class AuthFragment extends BaseFragment
         });
 
         mRegisterButton = v.findViewById(R.id.auth_register_button);
-        mRegisterButton.setOnClickListener(v2 -> {
-            startActivity(new Intent(getActivity(), RegisterActivity.class));
-            getActivity().finish();
-        });
+        mRegisterButton.setOnClickListener(v2 ->
+                startActivity(RegisterActivity.newIntent(getActivity(), NEW_INTENT_FLAGS)));
 
         mForgotPasswordButton = v.findViewById(R.id.forgot_password_button);
         mForgotPasswordButton.setOnClickListener(v3 ->
@@ -148,12 +146,11 @@ public class AuthFragment extends BaseFragment
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
                         User user = new User(firebaseUser.getDisplayName(),
-                                firebaseUser.getEmail());
+                                firebaseUser.getEmail(), firebaseUser.getUid());
                         mUsersReference.child(firebaseUser.getUid()).setValue(user);
 
-                        startActivity(new Intent(getActivity(), MessengerActivity.class));
+                        startActivity(MessengerActivity.newIntent(getActivity(), NEW_INTENT_FLAGS));
                         Log.i(TAG, "AuthFragment finished");
-                        getActivity().finish();
                     } else
                         Toast.makeText(getActivity(), "Auth error!",
                                 Toast.LENGTH_SHORT).show();

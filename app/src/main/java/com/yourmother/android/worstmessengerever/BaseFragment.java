@@ -8,7 +8,9 @@ import android.widget.Toast;
 
 import com.google.firebase.database.annotations.NotNull;
 
-public abstract class BaseFragment extends Fragment {
+import java.io.Serializable;
+
+public abstract class BaseFragment extends Fragment implements Serializable {
 
     public boolean onBackPressed() {
         return false;

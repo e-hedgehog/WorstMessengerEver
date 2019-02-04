@@ -1,6 +1,5 @@
 package com.yourmother.android.worstmessengerever;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,14 +15,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,27 +27,31 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-public class MessengerFragment extends BaseFragment {
+public class MessengerFragment extends BaseFragment implements OnConversationEventListener {
 
     private static final String TAG = "MessengerFragment";
 
     private FirebaseDatabase mDatabase;
     private DatabaseReference mMessagesReference;
+    private DatabaseReference mConversationsReference;
     private DatabaseReference mUsersReference;
     private FirebaseAuth mAuth;
     private FirebaseUser mFirebaseUser;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
 
-    private List<Message> mMessagesList;
-
     private ProgressBar mProgressBar;
-    private ImageButton mSendButton;
-    private EditText mMessageEditText;
     private RecyclerView mRecyclerView;
-    private MessagesAdapter mAdapter;
+    private ConversationsAdapter mAdapter;
+
+    private List<Message> mConversationsList;
+    private List<User> mConversationUsersList;
+    private Map<User, Message> mConversationsMap;
+    private String mCurrentUserUid;
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
@@ -73,27 +73,28 @@ public class MessengerFragment extends BaseFragment {
 
         Log.i(TAG, "MessengerFragment: onCreate()");
 
-        if (mMessagesList == null)
-            mMessagesList = new ArrayList<>();
+        if (mConversationsList == null)
+            mConversationsList = new ArrayList<>();
+        if (mConversationUsersList == null)
+            mConversationUsersList = new ArrayList<>();
+        if (mConversationsMap == null)
+            mConversationsMap = new HashMap<>();
 
         isOnline(getActivity());
 
         mDatabase = FirebaseDatabase.getInstance();
-        mMessagesReference = mDatabase.getReference("messages");
-        mUsersReference = mDatabase.getReference("users");
-
         mAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mAuth.getCurrentUser();
 
-        if (mFirebaseUser == null) {
-            startActivity(new Intent(getActivity(), AuthActivity.class));
-            Log.i(TAG, "Current user is null, activity finishing");
-            getActivity().finish();
-        }
+        if (mFirebaseUser != null)
+            mCurrentUserUid = mFirebaseUser.getUid();
+
+        mConversationsReference = mDatabase.getReference("conversations");
+        mUsersReference = mDatabase.getReference("users");
 
         mAuthStateListener = firebaseAuth -> {
             if (mAuth.getCurrentUser() == null) {
-                startActivity(new Intent(getActivity(), AuthActivity.class));
+                startActivity(AuthActivity.newIntent(getActivity()));
                 Log.i(TAG, "AuthState changed, activity finishing");
                 getActivity().finish();
             }
@@ -130,8 +131,9 @@ public class MessengerFragment extends BaseFragment {
             }
         });
 
-        if (isOnline(getActivity()))
-            mUsersReference.child(mFirebaseUser.getUid())
+//        if (isOnline(getActivity()))
+        if (mCurrentUserUid != null) {
+            mUsersReference.child(mCurrentUserUid)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -149,60 +151,17 @@ public class MessengerFragment extends BaseFragment {
                         }
                     });
 
+            findExistingConversationsCreatedByCurrentUser();
+            findExistingConversationsCreatedBySomeone();
+            Log.i(TAG, mConversationsMap.toString());
+        }
+
         mProgressBar = view.findViewById(R.id.messenger_progress_bar);
-        mMessageEditText = view.findViewById(R.id.message_edittext);
-        mSendButton = view.findViewById(R.id.send_button);
-        mSendButton.setOnClickListener(v -> {
-            if (isOnline(activity))
-                mUsersReference.child(mFirebaseUser.getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                User currentUser = dataSnapshot.getValue(User.class);
-                                String msg = mMessageEditText.getText().toString().trim();
-                                Message message = new Message(mFirebaseUser.getUid(),
-                                        currentUser.getUsername(), msg, new Date().getTime());
-                                if (!msg.equals("")) {
-                                    mMessagesReference.push().setValue(message);
-                                    mMessageEditText.setText("");
-                                }
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                                Log.i(TAG, "Single Value Event cancelled");
-                            }
-                        });
-        });
+        mRecyclerView = view.findViewById(R.id.messenger_recycler_view);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        updateUI();
 
-        mMessagesReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                mMessagesList.add(dataSnapshot.getValue(Message.class));
-                mProgressBar.setVisibility(View.INVISIBLE);
-                mAdapter.notifyDataSetChanged();
-                mRecyclerView.smoothScrollToPosition(mMessagesList.size());
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) { }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) { }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) { }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) { }
-        });
-
-        mRecyclerView = view.findViewById(R.id.messenger_recycler);
-        LinearLayoutManager manager = new LinearLayoutManager(activity);
-        manager.setStackFromEnd(true);
-        mRecyclerView.setLayoutManager(manager);
-        mAdapter = new MessagesAdapter(activity, mMessagesList);
-        mRecyclerView.setAdapter(mAdapter);
 
         return view;
     }
@@ -227,6 +186,141 @@ public class MessengerFragment extends BaseFragment {
             return true;
         }
         return false;
+    }
+
+    private void updateUI() {
+        if (mAdapter == null) {
+            mAdapter = new ConversationsAdapter(getActivity(),
+                    new ArrayList<>(mConversationsMap.entrySet()));
+            mRecyclerView.setAdapter(mAdapter);
+        } else {
+            mAdapter.setConversations(new ArrayList<>(mConversationsMap.entrySet()));
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void findExistingConversationsCreatedByCurrentUser() {
+        mConversationsReference.child(mCurrentUserUid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                        Log.i(TAG, dataSnapshot.getKey() + " is the key");
+                        if (dataSnapshot.exists())
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                Log.i(TAG, snapshot.getKey() + "is a key");
+                                findLastMessageInConversation(mCurrentUserUid, snapshot.getKey());
+                            }
+//                findConversationTitle(dataSnapshot.getKey());
+//                mAdapter.notifyDataSetChanged();
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+    }
+
+    private void findExistingConversationsCreatedBySomeone() {
+        mConversationsReference
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                        Log.i(TAG, dataSnapshot.getKey() + " is the key");
+                        for (DataSnapshot snapshot: dataSnapshot.getChildren())
+                            if (snapshot.hasChild(mCurrentUserUid)) {
+                                Log.i(TAG, snapshot.getKey() + " is the key");
+                                findLastMessageInConversation(snapshot.getKey(), mCurrentUserUid);
+                            }
+//                mAdapter.notifyDataSetChanged();
+                        mProgressBar.setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
+    }
+
+    private void findLastMessageInConversation(String uidSender, String uidReceiver) {
+        mConversationsReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.i(TAG, "Sender uid: " + uidSender + " | Receiver uid: " + uidReceiver);
+                DataSnapshot lastSnapshot = getSnapshotOnLastMessage(
+                        dataSnapshot.child(uidSender).child(uidReceiver));
+                Message lastMessage;
+                if (lastSnapshot != null) {
+                    lastMessage = lastSnapshot.getValue(Message.class);
+//                    mConversationsList.add(lastMessage);
+                    Log.i(TAG, "Last message: " + lastMessage.getText());
+                    if (uidSender.equals(mCurrentUserUid))
+                        findConversationTitle(uidReceiver, lastMessage);
+                    else
+                        findConversationTitle(uidSender, lastMessage);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.i(TAG, "Cancelled finding last message in conversation");
+            }
+        });
+    }
+
+    private DataSnapshot getSnapshotOnLastMessage(DataSnapshot snapshot) {
+        if (snapshot == null)
+            return null;
+
+        Iterator iterator = snapshot.getChildren().iterator();
+        DataSnapshot lastSnapshot = null;
+        while (iterator.hasNext()) {
+            lastSnapshot = (DataSnapshot) iterator.next();
+        }
+        return lastSnapshot;
+    }
+
+    private Message getLastMessage(Message message1, Message message2) {
+        if (message1 == null) {
+            return message2;
+        } else if (message2 == null) {
+            return message1;
+        } else if (message1.getDate() > message2.getDate()) {
+            return message1;
+        } else
+            return message2;
+    }
+
+    private void findConversationTitle(String uid, Message message) {
+        mUsersReference.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                if (user != null) {
+                    mConversationsMap.put(user, message);
+                    Log.i(TAG, mConversationsMap.toString());
+                    updateUI();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.i(TAG, "Finding conversation title cancelled");
+            }
+        });
+    }
+
+    @Override
+    public void onConversationCreated() {
+
+    }
+
+    @Override
+    public void onConversationUpdated(User user, Message message) {
+        mConversationsMap.put(user, message);
+        updateUI();
     }
 
 //    @Override

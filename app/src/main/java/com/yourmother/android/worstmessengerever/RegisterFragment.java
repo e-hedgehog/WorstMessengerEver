@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,9 +81,9 @@ public class RegisterFragment extends BaseFragment {
                 mAuth.createUserWithEmailAndPassword(email, password1)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                User user = new User(username, email);
-                                mUsersReference.child(mAuth.getCurrentUser().getUid())
-                                        .setValue(user);
+                                String uid = mAuth.getCurrentUser().getUid();
+                                User user = new User(username, email, uid);
+                                mUsersReference.child(uid).setValue(user);
 
                                 startActivity(new Intent(getActivity(), MessengerActivity.class));
                                 getActivity().finish();

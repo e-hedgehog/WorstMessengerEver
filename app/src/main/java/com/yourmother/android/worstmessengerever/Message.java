@@ -1,6 +1,8 @@
 package com.yourmother.android.worstmessengerever;
 
-public class Message {
+import android.support.annotation.NonNull;
+
+public class Message implements Comparable<Message> {
 
     private String mUserUid;
     private String mUsername;
@@ -47,5 +49,15 @@ public class Message {
 
     public void setUsername(String username) {
         mUsername = username;
+    }
+
+    @Override
+    public int compareTo(@NonNull Message message) {
+        return Long.compare(mDate, message.getDate());
+    }
+
+    @Override
+    public String toString() {
+        return mText;
     }
 }

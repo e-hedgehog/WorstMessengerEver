@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessageHolder> {
@@ -31,6 +32,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessageHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull MessageHolder messageHolder, int i) {
+        Collections.sort(mMessagesList);
         messageHolder.bind(mContext, mMessagesList.get(i));
     }
 

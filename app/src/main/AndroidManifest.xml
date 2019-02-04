@@ -26,7 +26,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ResetPasswordActivity" />
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:parentActivityName=".AuthActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".AuthActivity" />
+        </activity>
+        <activity
+            android:name=".ConversationActivity"
+            android:parentActivityName=".MessengerActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MessengerActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -17,6 +18,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.annotations.NotNull;
 
 public class MessageHolder extends RecyclerView.ViewHolder {
+
+    private static final String TAG = "MessageHolder";
 
     private TextView mMessageText;
     private TextView mMessageDate;
@@ -39,6 +42,7 @@ public class MessageHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(Context context, Message message) {
+        Log.i(TAG, message.getUserUid() == null ? "userUid is null" : "uid not null");
         String text = message.getText();
         mMessageText.setText(message.getText());
         String date = DateFormat
