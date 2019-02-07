@@ -3,7 +3,6 @@ package com.yourmother.android.worstmessengerever;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,7 +23,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -63,12 +61,12 @@ public class ConversationFragment extends BaseFragment {
         return newFragment;
     }
 
-    @NonNull
-    public static ConversationFragment newInstance(BaseFragment fragment, User user) {
-        ConversationFragment newFragment = newInstance(user);
-        newFragment.getArguments().putSerializable(ARG_FRAGMENT, fragment);
-        return newFragment;
-    }
+//    @NonNull
+//    public static ConversationFragment newInstance(BaseFragment fragment, User user) {
+//        ConversationFragment newFragment = newInstance(user);
+//        newFragment.getArguments().putSerializable(ARG_FRAGMENT, fragment);
+//        return newFragment;
+//    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,7 +77,7 @@ public class ConversationFragment extends BaseFragment {
 
         mConversationUser = (User) getArguments().getSerializable(ARG_USER);
         Log.i(TAG, mConversationUser == null ? "user is null" : "user not null");
-        mOpenedFragment = (BaseFragment) getArguments().getSerializable(ARG_FRAGMENT);
+//        mOpenedFragment = (BaseFragment) getArguments().getSerializable(ARG_FRAGMENT);
 
         isOnline(getActivity());
 
@@ -118,14 +116,10 @@ public class ConversationFragment extends BaseFragment {
                                 if (!msg.equals("")) {
                                     saveNewMessage(message);
                                     mMessageEditText.setText("");
-                                    if (mOpenedFragment instanceof MessengerFragment) {
-                                        ((MessengerFragment) mOpenedFragment)
-                                                .onConversationUpdated(mConversationUser, message);
-                                    }
-//                                    mMessagesList.add(message);
-//                                    mAdapter.notifyDataSetChanged();
-//                                    mRecyclerView.smoothScrollToPosition(mMessagesList.size());
-//                                    mReceivedMessagesReference.push(); //shit
+//                                    if (mOpenedFragment instanceof ConversationsListFragment) {
+//                                        ((ConversationsListFragment) mOpenedFragment)
+//                                                .onConversationUpdated(mConversationUser, message);
+//                                    }
                                 }
                             }
 
@@ -137,8 +131,6 @@ public class ConversationFragment extends BaseFragment {
         });
 
         childEventListener(mSentMessagesReference);
-//        loadExistingMessages(mSentMessagesReference);
-//        loadExistingMessages(mReceivedMessagesReference);
         childEventListener(mReceivedMessagesReference);
 
         mRecyclerView = view.findViewById(R.id.conversation_recycler_view);
@@ -173,25 +165,10 @@ public class ConversationFragment extends BaseFragment {
         });
     }
 
-    private void loadExistingMessages(DatabaseReference reference) {
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    mMessagesList.add(snapshot.getValue(Message.class));
-                }
-                mAdapter.notifyDataSetChanged();
-                mRecyclerView.smoothScrollToPosition(mMessagesList.size());
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     private void childEventListener(DatabaseReference reference) {
+        if (mMessagesList.isEmpty())
+            mProgressBar.setVisibility(View.INVISIBLE);
+
         reference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -219,10 +196,10 @@ public class ConversationFragment extends BaseFragment {
         });
     }
 
-    private void addMessagesFromSnapshot(DataSnapshot snapshot) {
-        mMessagesList.add(snapshot.getValue(Message.class));
-        mProgressBar.setVisibility(View.INVISIBLE);
-        mAdapter.notifyDataSetChanged();
-        mRecyclerView.smoothScrollToPosition(mMessagesList.size());
-    }
+//    private void addMessagesFromSnapshot(DataSnapshot snapshot) {
+//        mMessagesList.add(snapshot.getValue(Message.class));
+//        mProgressBar.setVisibility(View.INVISIBLE);
+//        mAdapter.notifyDataSetChanged();
+//        mRecyclerView.smoothScrollToPosition(mMessagesList.size());
+//    }
 }

@@ -24,9 +24,9 @@ public class ConversationActivity extends SingleFragmentActivity {
     @Override
     protected Fragment createFragment() {
         User user = (User) getIntent().getSerializableExtra(EXTRA_USER);
-        BaseFragment fragment = (BaseFragment) getIntent().getSerializableExtra(EXTRA_FRAGMENT);
-        if (fragment == null)
+//        BaseFragment fragment = (BaseFragment) getIntent().getSerializableExtra(EXTRA_FRAGMENT);
+//        if (fragment == null)
             return ConversationFragment.newInstance(user);
-        return ConversationFragment.newInstance(fragment, user);
+//        return ConversationFragment.newInstance(fragment, user);
     }
 }

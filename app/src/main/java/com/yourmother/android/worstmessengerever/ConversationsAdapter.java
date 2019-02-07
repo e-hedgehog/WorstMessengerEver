@@ -8,9 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,19 +17,13 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationHolde
     private static final String TAG = "ConversationsAdapter";
 
     private Context mContext;
-//    private Message[] mMessages;
-//    private User[] mUsers;
     private List<Map.Entry<User, Message>> mConversations;
 
     public ConversationsAdapter(Context context, List<Map.Entry<User, Message>> conversations) {
         mContext = context;
 
         mConversations = conversations;
-        Collections.sort(conversations, (o1, o2) ->
-                (int) (o1.getValue().getDate() - o2.getValue().getDate()));
         Log.i(TAG, mConversations.toString());
-//        mMessages = (Message[]) conversationsMap.values().toArray();
-//        mUsers = (User[]) conversationsMap.keySet().toArray();
     }
 
     @NonNull
@@ -44,10 +36,13 @@ public class ConversationsAdapter extends RecyclerView.Adapter<ConversationHolde
 
     @Override
     public void onBindViewHolder(@NonNull ConversationHolder conversationHolder, int i) {
-//        Log.i(TAG, Arrays.toString(mMessages));
-//        Log.i(TAG, Arrays.toString(mUsers));
+        Collections.sort(mConversations, (o1, o2) ->
+                (int) (o2.getValue().getDate() - o1.getValue().getDate()));
         Log.i(TAG, mConversations.toString() + " in adapter");
-        conversationHolder.bind(mConversations.get(i));
+        if (i == 0)
+            conversationHolder.bindFirst(mContext, mConversations.get(i));
+        else
+            conversationHolder.bind(mContext, mConversations.get(i));
     }
 
     @Override

@@ -2,10 +2,8 @@ package com.yourmother.android.worstmessengerever;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.DimenRes;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,9 +13,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.annotations.NotNull;
 
-public class MessageHolder extends RecyclerView.ViewHolder {
+public class MessageHolder extends BaseViewHolder {
 
     private static final String TAG = "MessageHolder";
 
@@ -59,21 +56,29 @@ public class MessageHolder extends RecyclerView.ViewHolder {
             mMessageUser.setVisibility(View.GONE);
             params.gravity = Gravity.END;
             params.leftMargin = dpToPx(context, R.dimen.message_margin_48dp);
-            params.rightMargin = dpToPx(context, R.dimen.message_margin_8dp);
+            params.rightMargin = dpToPx(context, R.dimen.component_margin_8dp);
             mCardView.setCardBackgroundColor(context
                     .getResources().getColor(R.color.colorMessage));
         } else {
             mMessageUser.setVisibility(View.VISIBLE);
             mMessageUser.setText(message.getUsername());
             params.gravity = Gravity.START;
-            params.leftMargin = dpToPx(context, R.dimen.message_margin_8dp);
+            params.leftMargin = dpToPx(context, R.dimen.component_margin_8dp);
             params.rightMargin = dpToPx(context, R.dimen.message_margin_48dp);
             mCardView.setCardBackgroundColor(Color.WHITE);
         }
+        params.topMargin = 0;
         mCardView.setLayoutParams(params);
     }
 
-    private int dpToPx(@NotNull Context context, @DimenRes int id) {
-        return context.getResources().getDimensionPixelSize(id);
+    public void bindFirst(Context context, Message message) {
+        bind(context, message);
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mCardView.getLayoutParams();
+        if (message.getUserUid().equals(mFirebaseUser.getUid())) {
+            params.topMargin = dpToPx(context, R.dimen.component_margin_8dp);
+        } else
+            params.topMargin = 0;
+
+        mCardView.setLayoutParams(params);
     }
 }

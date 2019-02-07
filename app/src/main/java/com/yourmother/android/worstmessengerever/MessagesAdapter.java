@@ -33,7 +33,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessageHolder> {
     @Override
     public void onBindViewHolder(@NonNull MessageHolder messageHolder, int i) {
         Collections.sort(mMessagesList);
-        messageHolder.bind(mContext, mMessagesList.get(i));
+        if (i == 0)
+            messageHolder.bindFirst(mContext, mMessagesList.get(i));
+        else
+            messageHolder.bind(mContext, mMessagesList.get(i));
     }
 
     @Override
