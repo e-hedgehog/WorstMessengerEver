@@ -5,14 +5,20 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -35,6 +41,8 @@ public class MessengerFragment extends BaseFragment {
 
     private DrawerLayout mDrawerLayout;
     private NavigationView mNavigationView;
+    private ViewPager mViewPager;
+    private SearchView mSearchView;
 
     private String mCurrentUserUid;
 
@@ -45,8 +53,7 @@ public class MessengerFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.i(TAG, "Creating...");
+        setHasOptionsMenu(true);
 
         isOnline(getActivity());
 
@@ -71,8 +78,6 @@ public class MessengerFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_messenger, container, false);
-
-        Log.i(TAG, view == null ? "View is null" : "View not null");
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         Toolbar toolbar = view.findViewById(R.id.messenger_toolbar);
@@ -101,11 +106,36 @@ public class MessengerFragment extends BaseFragment {
         if (mCurrentUserUid != null)
             setupNavigationHeader(mCurrentUserUid);
 
-        ViewPager viewPager = view.findViewById(R.id.messenger_viewpager);
-        setupViewPager(viewPager);
+        mViewPager = view.findViewById(R.id.messenger_viewpager);
+        setupViewPager(mViewPager);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                if (mSearchView != null && !mSearchView.isIconified()) {
+                    mSearchView.setIconified(true);
+                    mSearchView.setIconified(true);
+                }
+                FragmentPagerAdapter adapter = (FragmentPagerAdapter) mViewPager.getAdapter();
+                if (adapter != null) {
+                    Fragment fragment = (Fragment) adapter.instantiateItem(mViewPager, i);
+                    if (fragment instanceof BaseFragment)
+                        ((BaseFragment) fragment).updateUI();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
 
         TabLayout tabs = view.findViewById(R.id.messenger_tabs);
-        tabs.setupWithViewPager(viewPager);
+        tabs.setupWithViewPager(mViewPager);
 
         return view;
     }
@@ -130,6 +160,35 @@ public class MessengerFragment extends BaseFragment {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_messenger, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.menu_search_item);
+        mSearchView = (SearchView) searchItem.getActionView();
+        mSearchView.setIconifiedByDefault(true);
+
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                FragmentPagerAdapter adapter = (FragmentPagerAdapter) mViewPager.getAdapter();
+                if (adapter != null) {
+                    Fragment fragment = (Fragment) adapter
+                            .instantiateItem(mViewPager, mViewPager.getCurrentItem());
+                    if (fragment instanceof BaseFragment.Searchable)
+                        ((Searchable) fragment).search(s);
+                }
+                return false;
+            }
+        });
     }
 
     private void setupNavigationHeader(String currentUserUid) {

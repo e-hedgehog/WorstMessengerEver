@@ -12,6 +12,10 @@ import java.io.Serializable;
 
 public abstract class BaseFragment extends Fragment implements Serializable {
 
+    public interface Searchable {
+        void search(String query);
+    }
+
     public boolean onBackPressed() {
         return false;
     }
@@ -27,4 +31,6 @@ public abstract class BaseFragment extends Fragment implements Serializable {
         Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show();
         return false;
     }
+
+    public void updateUI() { }
 }

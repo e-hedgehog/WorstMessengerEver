@@ -12,11 +12,11 @@ import java.util.List;
 public class ContactsAdapter extends RecyclerView.Adapter<ContactHolder> {
 
     private Context mContext;
-    private List<User> mUsers;
+    private List<User> mContacts;
 
-    public ContactsAdapter(Context context, List<User> users) {
+    public ContactsAdapter(Context context, List<User> contacts) {
         mContext = context;
-        mUsers = users;
+        mContacts = contacts;
     }
 
 
@@ -31,13 +31,17 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactHolder> {
     @Override
     public void onBindViewHolder(@NonNull ContactHolder contactHolder, int i) {
         if (i == 0)
-            contactHolder.bindFirst(mContext, mUsers.get(0));
+            contactHolder.bindFirst(mContext, mContacts.get(0));
         else
-            contactHolder.bind(mContext, mUsers.get(i));
+            contactHolder.bind(mContext, mContacts.get(i));
     }
 
     @Override
     public int getItemCount() {
-        return mUsers.size();
+        return mContacts.size();
+    }
+
+    public void setContacts(List<User> contacts) {
+        mContacts = contacts;
     }
 }

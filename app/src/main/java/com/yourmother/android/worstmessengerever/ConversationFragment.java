@@ -3,6 +3,7 @@ package com.yourmother.android.worstmessengerever;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,7 +31,6 @@ public class ConversationFragment extends BaseFragment {
 
     private static final String TAG = "ConversationFragment";
     private static final String ARG_USER = "user";
-    private static final String ARG_FRAGMENT = "fragment";
 
     private ProgressBar mProgressBar;
     private ImageButton mSendButton;
@@ -40,15 +40,11 @@ public class ConversationFragment extends BaseFragment {
 
     private List<Message> mMessagesList;
     private User mConversationUser;
-    private BaseFragment mOpenedFragment;
 
-    private FirebaseDatabase mDatabase;
     private DatabaseReference mConversationsReference;
     private DatabaseReference mSentMessagesReference;
     private DatabaseReference mReceivedMessagesReference;
     private DatabaseReference mUsersReference;
-    private DatabaseReference mChatsReference;
-    private FirebaseAuth mAuth;
     private FirebaseUser mFirebaseUser;
 
     @NonNull
@@ -61,13 +57,6 @@ public class ConversationFragment extends BaseFragment {
         return newFragment;
     }
 
-//    @NonNull
-//    public static ConversationFragment newInstance(BaseFragment fragment, User user) {
-//        ConversationFragment newFragment = newInstance(user);
-//        newFragment.getArguments().putSerializable(ARG_FRAGMENT, fragment);
-//        return newFragment;
-//    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,21 +66,22 @@ public class ConversationFragment extends BaseFragment {
 
         mConversationUser = (User) getArguments().getSerializable(ARG_USER);
         Log.i(TAG, mConversationUser == null ? "user is null" : "user not null");
-//        mOpenedFragment = (BaseFragment) getArguments().getSerializable(ARG_FRAGMENT);
 
         isOnline(getActivity());
 
-        mDatabase = FirebaseDatabase.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mAuth.getCurrentUser();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        mFirebaseUser = auth.getCurrentUser();
 
-        mConversationsReference = mDatabase.getReference("conversations");
-        mSentMessagesReference = mDatabase.getReference("conversations")
+        mConversationsReference = database.getReference("conversations");
+        mSentMessagesReference = database.getReference("conversations")
                 .child(mFirebaseUser.getUid()).child(mConversationUser.getUserUid());
-        mReceivedMessagesReference = mDatabase.getReference("conversations")
+        mReceivedMessagesReference = database.getReference("conversations")
                 .child(mConversationUser.getUserUid()).child(mFirebaseUser.getUid());
-        mUsersReference = mDatabase.getReference("users");
-        mChatsReference = mDatabase.getReference("chats");
+        mUsersReference = database.getReference("users");
+
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.getSupportActionBar().setTitle(mConversationUser.getUsername());
     }
 
     @Nullable
@@ -116,10 +106,6 @@ public class ConversationFragment extends BaseFragment {
                                 if (!msg.equals("")) {
                                     saveNewMessage(message);
                                     mMessageEditText.setText("");
-//                                    if (mOpenedFragment instanceof ConversationsListFragment) {
-//                                        ((ConversationsListFragment) mOpenedFragment)
-//                                                .onConversationUpdated(mConversationUser, message);
-//                                    }
                                 }
                             }
 
@@ -196,10 +182,4 @@ public class ConversationFragment extends BaseFragment {
         });
     }
 
-//    private void addMessagesFromSnapshot(DataSnapshot snapshot) {
-//        mMessagesList.add(snapshot.getValue(Message.class));
-//        mProgressBar.setVisibility(View.INVISIBLE);
-//        mAdapter.notifyDataSetChanged();
-//        mRecyclerView.smoothScrollToPosition(mMessagesList.size());
-//    }
 }

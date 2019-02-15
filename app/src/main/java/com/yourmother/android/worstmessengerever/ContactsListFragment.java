@@ -22,7 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContactsListFragment extends BaseFragment {
+public class ContactsListFragment extends BaseFragment implements BaseFragment.Searchable {
 
     private static final String TAG = "ContactsListFragment";
 
@@ -61,10 +61,20 @@ public class ContactsListFragment extends BaseFragment {
         findContacts();
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = new ContactsAdapter(getActivity(), mUsers);
-        mRecyclerView.setAdapter(mAdapter);
+        updateUI();
 
         return view;
+    }
+
+    @Override
+    public void updateUI() {
+        if (mAdapter == null) {
+            mAdapter = new ContactsAdapter(getActivity(), mUsers);
+            mRecyclerView.setAdapter(mAdapter);
+        } else {
+            mAdapter.setContacts(mUsers);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     private void findContacts() {
@@ -76,7 +86,7 @@ public class ContactsListFragment extends BaseFragment {
                         .getCurrentUser().getUid())) {
                     mUsers.add(user);
                     mProgressBar.setVisibility(View.INVISIBLE);
-                    mAdapter.notifyDataSetChanged();
+                    updateUI();
                 }
             }
 
@@ -100,5 +110,23 @@ public class ContactsListFragment extends BaseFragment {
                 Log.i(TAG, "Finding contacts cancelled");
             }
         });
+    }
+
+    @Override
+    public void search(String query) {
+        List<User> resultList = new ArrayList<>();
+        if (query == null || query.length() == 0) {
+            resultList.addAll(mUsers);
+        } else {
+            String searchString = query.toLowerCase().trim();
+            for (User user : mUsers)
+                if (user.getUsername().toLowerCase().contains(searchString) ||
+                        user.getEmail().toLowerCase().contains(searchString)) {
+                    resultList.add(user);
+                }
+        }
+
+        mAdapter.setContacts(resultList);
+        mAdapter.notifyDataSetChanged();
     }
 }

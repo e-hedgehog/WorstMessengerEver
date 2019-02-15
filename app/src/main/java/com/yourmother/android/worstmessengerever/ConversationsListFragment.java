@@ -29,9 +29,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-public class ConversationsListFragment extends BaseFragment {
+public class ConversationsListFragment extends BaseFragment implements BaseFragment.Searchable {
 
     private static final String TAG = "ConvListFragment";
 
@@ -57,7 +58,6 @@ public class ConversationsListFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setHasOptionsMenu(true);
 
         Log.i(TAG, "ConversationsListFragment: onCreate()");
 
@@ -97,7 +97,8 @@ public class ConversationsListFragment extends BaseFragment {
         return view;
     }
 
-    private void updateUI() {
+    @Override
+    public void updateUI() {
         if (mAdapter == null) {
             mAdapter = new ConversationsAdapter(getActivity(),
                     new ArrayList<>(mConversationsMap.entrySet()));
@@ -206,18 +207,20 @@ public class ConversationsListFragment extends BaseFragment {
         });
     }
 
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        super.onCreateOptionsMenu(menu, inflater);
-//        inflater.inflate(R.menu.fragment_messenger_menu, menu);
-//    }
+    @Override
+    public void search(String query) {
+        List<Map.Entry<User, Message>> resultList = new ArrayList<>();
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        if (mActionBarDrawerToggle.onOptionsItemSelected(item))
-//            return true;
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+        if (query == null || query.length() == 0) {
+            resultList.addAll(mConversationsMap.entrySet());
+        } else {
+            String searchString = query.toLowerCase().trim();
+            for (Map.Entry<User, Message> entry : mConversationsMap.entrySet())
+                if (entry.getKey().getUsername().toLowerCase().contains(searchString))
+                    resultList.add(entry);
+        }
 
+        mAdapter.setConversations(resultList);
+        mAdapter.notifyDataSetChanged();
+    }
 }
