@@ -35,11 +35,11 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@android:color/black"
             android:textSize="16sp"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/conversation_item_date"
             app:layout_constraintStart_toEndOf="@+id/conversation_item_image"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Sender: " />
@@ -54,10 +54,35 @@
             android:ellipsize="end"
             android:maxLines="2"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/conversation_item_unseen_count"
             app:layout_constraintStart_toEndOf="@+id/conversation_item_image"
             app:layout_constraintTop_toBottomOf="@+id/conversation_item_sender"
             tools:text="Message text" />
+
+        <TextView
+            android:id="@+id/conversation_item_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="date" />
+
+        <TextView
+            android:id="@+id/conversation_item_unseen_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:textSize="16sp"
+            android:ellipsize="end"
+            android:maxLength="5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/conversation_item_date"
+            tools:text="count" />
 
     </android.support.constraint.ConstraintLayout>
 

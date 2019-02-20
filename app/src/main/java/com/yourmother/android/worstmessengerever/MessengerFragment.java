@@ -21,8 +21,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -202,6 +204,14 @@ public class MessengerFragment extends BaseFragment {
                         emailTextView.setText(currentUser.getEmail());
                         TextView usernameTextView = view.findViewById(R.id.nav_header_username);
                         usernameTextView.setText(currentUser.getUsername());
+
+                        ImageView imageView = view.findViewById(R.id.nav_header_image);
+                        String firstLetter = currentUser.getUsername()
+                                .substring(0, 1).toUpperCase();
+                        TextDrawable drawable = TextDrawable.builder()
+                                .beginConfig().bold().endConfig()
+                                .buildRound(firstLetter, currentUser.getProfileImageColor());
+                        imageView.setImageDrawable(drawable);
                     }
 
                     @Override

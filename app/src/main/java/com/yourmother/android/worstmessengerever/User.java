@@ -10,11 +10,13 @@ public class User implements Serializable {
     private String mUsername;
     private String mEmail;
     private String mUserUid;
+    private int mProfileImageColor;
 
-    public User(String username, String email, String userUid) {
+    public User(String username, String email, String userUid, int profileImageColor) {
         mUsername = username;
         mEmail = email;
         mUserUid = userUid;
+        mProfileImageColor = profileImageColor;
     }
 
     public User() {
@@ -44,6 +46,14 @@ public class User implements Serializable {
         mUserUid = userUid;
     }
 
+    public int getProfileImageColor() {
+        return mProfileImageColor;
+    }
+
+    public void setProfileImageColor(int color) {
+        mProfileImageColor = color;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -57,12 +67,14 @@ public class User implements Serializable {
         User user = (User) o;
         return Objects.equals(mUsername, user.mUsername) &&
                 Objects.equals(mEmail, user.mEmail) &&
-                Objects.equals(mUserUid, user.mUserUid);
+                Objects.equals(mUserUid, user.mUserUid) &&
+                Objects.equals(mProfileImageColor, user.mProfileImageColor);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(mUsername, mEmail, mUserUid);
+        return Objects.hash(mUsername, mEmail, mUserUid, mProfileImageColor);
     }
+
 }

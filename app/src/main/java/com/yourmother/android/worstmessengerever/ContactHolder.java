@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+
 public class ContactHolder extends BaseViewHolder {
 
     private CardView mCardView;
@@ -37,6 +39,12 @@ public class ContactHolder extends BaseViewHolder {
         mUser = user;
         mUsernameTextView.setText(user.getUsername());
         mEmailTextView.setText(user.getEmail());
+
+        String firstLetter = user.getUsername().substring(0, 1).toUpperCase();
+        TextDrawable drawable = TextDrawable.builder()
+                .beginConfig().bold().endConfig()
+                .buildRound(firstLetter, user.getProfileImageColor());
+        mContactImage.setImageDrawable(drawable);
 
         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) mCardView.getLayoutParams();
         params.topMargin = 0;

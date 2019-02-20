@@ -47,6 +47,9 @@ public class ConversationFragment extends BaseFragment {
     private DatabaseReference mUsersReference;
     private FirebaseUser mFirebaseUser;
 
+    private String mChatType1;
+    private String mChatType2;
+
     @NonNull
     public static ConversationFragment newInstance(User user) {
         Bundle args = new Bundle();
@@ -73,15 +76,21 @@ public class ConversationFragment extends BaseFragment {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         mFirebaseUser = auth.getCurrentUser();
 
+        mChatType1 = mFirebaseUser.getUid() + "/" + mConversationUser.getUserUid();
+        mChatType2 = mConversationUser.getUserUid() + "/" + mFirebaseUser.getUid();
+
         mConversationsReference = database.getReference("conversations");
-        mSentMessagesReference = database.getReference("conversations")
-                .child(mFirebaseUser.getUid()).child(mConversationUser.getUserUid());
-        mReceivedMessagesReference = database.getReference("conversations")
-                .child(mConversationUser.getUserUid()).child(mFirebaseUser.getUid());
+        mSentMessagesReference = database
+                .getReference("conversations").child(mFirebaseUser.getUid())
+                .child(mConversationUser.getUserUid()).child("messages");
+        mReceivedMessagesReference = database
+                .getReference("conversations").child(mConversationUser.getUserUid())
+                .child(mFirebaseUser.getUid()).child("messages");
         mUsersReference = database.getReference("users");
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.getSupportActionBar().setTitle(mConversationUser.getUsername());
+
     }
 
     @Nullable
@@ -129,18 +138,45 @@ public class ConversationFragment extends BaseFragment {
         return view;
     }
 
-    private void saveNewMessage(Message message) {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         mConversationsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            String chatType1 = mFirebaseUser.getUid() + "/" + mConversationUser.getUserUid();
-            String chatType2 = mConversationUser.getUserUid() + "/" + mFirebaseUser.getUid();
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(chatType1)) {
+                if (dataSnapshot.hasChild(mChatType1))
+                    mConversationsReference.child(mChatType1).child("counters")
+                            .child(mFirebaseUser.getUid()).setValue(0);
+                else if (dataSnapshot.hasChild(mChatType2))
+                    mConversationsReference.child(mChatType2).child("counters")
+                            .child(mFirebaseUser.getUid()).setValue(0);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void saveNewMessage(Message message) {
+        mConversationsReference.addListenerForSingleValueEvent(new ValueEventListener() {
+//            String chatType1 = mFirebaseUser.getUid() + "/" + mConversationUser.getUserUid();
+//            String chatType2 = mConversationUser.getUserUid() + "/" + mFirebaseUser.getUid();
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild(mChatType1)) {
                     mSentMessagesReference.push().setValue(message);
-                } else if (dataSnapshot.hasChild(chatType2)) {
+                    updateUnseenCount(dataSnapshot.child(mChatType1), mConversationUser.getUserUid());
+                } else if (dataSnapshot.hasChild(mChatType2)) {
                     mReceivedMessagesReference.push().setValue(message);
+                    updateUnseenCount(dataSnapshot.child(mChatType2), mConversationUser.getUserUid());
                 } else {
                     mSentMessagesReference.push().setValue(message);
+                    mConversationsReference.child(mChatType1).child("counters")
+                            .child(mConversationUser.getUserUid()).setValue(1);
+                    mConversationsReference.child(mChatType1).child("counters")
+                            .child(mFirebaseUser.getUid()).setValue(0);
                 }
             }
 
@@ -180,6 +216,14 @@ public class ConversationFragment extends BaseFragment {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) { }
         });
+    }
+
+    private void updateUnseenCount(DataSnapshot chatSnapshot, String receiverUid) {
+        DataSnapshot countSnapshot = chatSnapshot.child("counters").child(receiverUid);
+        if (countSnapshot.exists()) {
+            long count = (long) countSnapshot.getValue();
+            chatSnapshot.getRef().child("counters").child(receiverUid).setValue(count + 1);
+        }
     }
 
 }

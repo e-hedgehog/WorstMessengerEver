@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -82,7 +83,9 @@ public class RegisterFragment extends BaseFragment {
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 String uid = mAuth.getCurrentUser().getUid();
-                                User user = new User(username, email, uid);
+                                ColorGenerator generator = ColorGenerator.MATERIAL;
+                                User user = new User(username, email, uid,
+                                        generator.getRandomColor());
                                 mUsersReference.child(uid).setValue(user);
 
                                 startActivity(new Intent(getActivity(), MessengerActivity.class));

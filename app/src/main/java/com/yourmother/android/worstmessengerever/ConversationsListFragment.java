@@ -157,7 +157,7 @@ public class ConversationsListFragment extends BaseFragment implements BaseFragm
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.i(TAG, "Sender uid: " + uidSender + " | Receiver uid: " + uidReceiver);
                 DataSnapshot lastSnapshot = getSnapshotOnLastMessage(
-                        dataSnapshot.child(uidSender).child(uidReceiver));
+                        dataSnapshot.child(uidSender).child(uidReceiver).child("messages"));
                 Message lastMessage;
                 if (lastSnapshot != null) {
                     lastMessage = lastSnapshot.getValue(Message.class);

@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -24,8 +25,11 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class AuthFragment extends BaseFragment
         implements GoogleApiClient.OnConnectionFailedListener {
@@ -145,9 +149,23 @@ public class AuthFragment extends BaseFragment
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                        User user = new User(firebaseUser.getDisplayName(),
-                                firebaseUser.getEmail(), firebaseUser.getUid());
-                        mUsersReference.child(firebaseUser.getUid()).setValue(user);
+                        mUsersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (!dataSnapshot.hasChild(firebaseUser.getUid())) {
+                                    ColorGenerator generator = ColorGenerator.MATERIAL;
+                                    User user = new User(firebaseUser.getDisplayName(),
+                                            firebaseUser.getEmail(), firebaseUser.getUid(),
+                                            generator.getRandomColor());
+                                    mUsersReference.child(firebaseUser.getUid()).setValue(user);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
 
                         startActivity(MessengerActivity.newIntent(getActivity(), NEW_INTENT_FLAGS));
                         Log.i(TAG, "AuthFragment finished");
