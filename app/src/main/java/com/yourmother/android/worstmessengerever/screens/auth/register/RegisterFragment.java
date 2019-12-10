@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.auth.register;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,11 @@ import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.yourmother.android.worstmessengerever.screens.messenger.MessengerActivity;
+import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.entities.User;
+import com.yourmother.android.worstmessengerever.screens.auth.AuthActivity;
+import com.yourmother.android.worstmessengerever.screens.base.BaseFragment;
 
 public class RegisterFragment extends BaseFragment {
 

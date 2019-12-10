@@ -1,10 +1,12 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.base;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+
+import com.yourmother.android.worstmessengerever.R;
 
 /**
  * Created by Admin on 01.08.2018.

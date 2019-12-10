@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.messenger.contacts;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -7,10 +7,13 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.yourmother.android.worstmessengerever.screens.messenger.chat.ConversationActivity;
+import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.entities.User;
+import com.yourmother.android.worstmessengerever.screens.base.BaseViewHolder;
 
 public class ContactHolder extends BaseViewHolder {
 

@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.auth.reset_password;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.screens.base.BaseFragment;
 
 public class ResetPasswordFragment extends BaseFragment {
 

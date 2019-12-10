@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.messenger.chat;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,6 +13,9 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.entities.Message;
+import com.yourmother.android.worstmessengerever.screens.base.BaseViewHolder;
 
 public class MessageHolder extends BaseViewHolder {
 

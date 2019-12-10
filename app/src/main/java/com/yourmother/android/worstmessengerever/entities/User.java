@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.entities;
 
 import android.support.annotation.NonNull;
 

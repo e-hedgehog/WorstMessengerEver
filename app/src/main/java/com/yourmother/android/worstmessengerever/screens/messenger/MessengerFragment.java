@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.messenger;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,6 +32,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.yourmother.android.worstmessengerever.screens.messenger.contacts.ContactsListFragment;
+import com.yourmother.android.worstmessengerever.screens.messenger.conversations.ConversationsListFragment;
+import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.entities.User;
+import com.yourmother.android.worstmessengerever.screens.auth.AuthActivity;
+import com.yourmother.android.worstmessengerever.screens.base.BaseFragment;
 
 public class MessengerFragment extends BaseFragment {
 

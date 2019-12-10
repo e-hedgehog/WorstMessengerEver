@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.messenger.contacts;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -18,6 +18,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.entities.User;
+import com.yourmother.android.worstmessengerever.screens.base.BaseFragment;
 
 import java.util.ArrayList;
 import java.util.List;

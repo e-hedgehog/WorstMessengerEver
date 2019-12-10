@@ -1,13 +1,15 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.auth;
 
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 
-public class RegisterActivity extends SingleFragmentActivity {
+import com.yourmother.android.worstmessengerever.screens.base.SingleFragmentActivity;
+
+public class AuthActivity extends SingleFragmentActivity {
 
     public static Intent newIntent(Context context) {
-        return new Intent(context, RegisterActivity.class);
+        return new Intent(context, AuthActivity.class);
     }
 
     public static Intent newIntent(Context context, int flags) {
@@ -16,6 +18,7 @@ public class RegisterActivity extends SingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        return RegisterFragment.newInstance();
+        return AuthFragment.newInstance();
     }
+
 }

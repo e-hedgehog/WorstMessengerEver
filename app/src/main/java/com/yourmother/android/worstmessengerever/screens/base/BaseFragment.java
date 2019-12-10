@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.base;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

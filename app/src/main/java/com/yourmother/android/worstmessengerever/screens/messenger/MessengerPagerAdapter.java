@@ -1,4 +1,4 @@
-package com.yourmother.android.worstmessengerever;
+package com.yourmother.android.worstmessengerever.screens.messenger;
 
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
