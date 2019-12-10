@@ -1,8 +1,10 @@
 package com.yourmother.android.worstmessengerever.screens.messenger.conversations;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -36,6 +38,7 @@ public class ConversationsListFragment extends BaseFragment implements BaseFragm
     private DatabaseReference mConversationsReference;
     private DatabaseReference mUsersReference;
 
+    private FloatingActionButton mCreateNewButton;
     private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
     private ConversationsAdapter mAdapter;
@@ -84,6 +87,10 @@ public class ConversationsListFragment extends BaseFragment implements BaseFragm
             findExistingConversationsCreatedBySomeone();
             Log.i(TAG, mConversationsMap.toString());
         }
+
+        mCreateNewButton = view.findViewById(R.id.messenger_action_button);
+        mCreateNewButton.setVisibility(View.VISIBLE);
+        mCreateNewButton.setOnClickListener(v -> performCreateButtonClick());
 
         mProgressBar = view.findViewById(R.id.messenger_progress_bar);
 
@@ -219,5 +226,9 @@ public class ConversationsListFragment extends BaseFragment implements BaseFragm
 
         mAdapter.setConversations(resultList);
         mAdapter.notifyDataSetChanged();
+    }
+
+    private void performCreateButtonClick() {
+        startActivity(new Intent(getActivity(), CreateConversationActivity.class));
     }
 }

@@ -29,21 +29,32 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
 
     private static final String TAG = "ContactsListFragment";
 
+    private static final String ARG_MODE = "mode";
+
     private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
     private ContactsAdapter mAdapter;
 
     private List<User> mUsers;
+    private Mode mFragmentMode;
 
     private DatabaseReference mUsersReference;
 
-    public static Fragment newInstance() {
-        return new ContactsListFragment();
+    public static Fragment newInstance(Mode mode) {
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_MODE, mode);
+
+        ContactsListFragment fragment = new ContactsListFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getArguments() != null)
+            mFragmentMode = (Mode) getArguments().getSerializable(ARG_MODE);
 
         if (mUsers == null)
             mUsers = new ArrayList<>();
@@ -131,5 +142,10 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
 
         mAdapter.setContacts(resultList);
         mAdapter.notifyDataSetChanged();
+    }
+
+    public enum Mode {
+        AS_TAB,
+        CREATE_CONVERSATION
     }
 }

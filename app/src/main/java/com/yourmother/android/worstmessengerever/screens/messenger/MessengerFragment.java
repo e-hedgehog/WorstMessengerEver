@@ -230,7 +230,7 @@ public class MessengerFragment extends BaseFragment {
     private void setupViewPager(ViewPager viewPager) {
         MessengerPagerAdapter adapter = new MessengerPagerAdapter(getChildFragmentManager());
         adapter.addFragment(ConversationsListFragment.newInstance(), "Conversations");
-        adapter.addFragment(ContactsListFragment.newInstance(), "Contacts");
+        adapter.addFragment(ContactsListFragment.newInstance(ContactsListFragment.Mode.AS_TAB), "Contacts");
         viewPager.setAdapter(adapter);
     }
 

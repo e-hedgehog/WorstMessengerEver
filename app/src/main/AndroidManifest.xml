@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.yourmother.android.worstmessengerever">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -10,7 +11,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning"
+        android:fullBackupContent="false">
 
         <activity android:name=".screens.auth.AuthActivity" />
 
@@ -18,14 +21,14 @@
 
         <activity
             android:name=".screens.messenger.MessengerActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            >
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".screens.auth.reset_password.ResetPasswordActivity"
             android:parentActivityName=".screens.auth.AuthActivity">
@@ -33,6 +36,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".screens.auth.AuthActivity" />
         </activity>
+
         <activity
             android:name=".screens.messenger.chat.ConversationActivity"
             android:parentActivityName=".screens.messenger.MessengerActivity">
@@ -40,6 +44,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".screens.messenger.MessengerActivity" />
         </activity>
+
+        <activity
+            android:name=".screens.messenger.conversations.CreateConversationActivity"
+            android:parentActivityName=".screens.messenger.MessengerActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".screens.messenger.MessengerActivity" />
+        </activity>
+
     </application>
 
 </manifest>
