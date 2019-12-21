@@ -8,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -60,6 +63,9 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
             mUsers = new ArrayList<>();
 
         mUsersReference = FirebaseDatabase.getInstance().getReference("users");
+
+        if (mFragmentMode == Mode.CREATE_CONVERSATION)
+            setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -77,13 +83,28 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         updateUI();
 
+        if (mFragmentMode == Mode.CREATE_CONVERSATION)
+            mAdapter.setOnGroupCreatingListener(() -> getActivity().invalidateOptionsMenu());
+
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_contacts_list, menu);
+
+        MenuItem createItem = menu.findItem(R.id.menu_create_chat);
+        createItem.setVisible(mAdapter.isSelectingStarted());
+        createItem.setOnMenuItemClickListener(item -> {
+            return false;
+        });
     }
 
     @Override
     public void updateUI() {
         if (mAdapter == null) {
-            mAdapter = new ContactsAdapter(getActivity(), mUsers);
+            mAdapter = new ContactsAdapter(getActivity(), mUsers, mFragmentMode);
             mRecyclerView.setAdapter(mAdapter);
         } else {
             mAdapter.setContacts(mUsers);

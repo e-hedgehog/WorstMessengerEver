@@ -12,6 +12,8 @@ public class User implements Serializable {
     private String mUserUid;
     private int mProfileImageColor;
 
+    private boolean isMarked;
+
     public User(String username, String email, String userUid, int profileImageColor) {
         mUsername = username;
         mEmail = email;
@@ -77,4 +79,11 @@ public class User implements Serializable {
         return Objects.hash(mUsername, mEmail, mUserUid, mProfileImageColor);
     }
 
+    public boolean isMarked() {
+        return isMarked;
+    }
+
+    public void setMarked(boolean marked) {
+        isMarked = marked;
+    }
 }

@@ -18,4 +18,5 @@
     <string name="something_else">Something else</string>
     <string name="nav_header_image_desc">Messenger navigation header image</string>
     <string name="menu_search_title">Search</string>
+    <string name="create_label">Create</string>
 </resources>

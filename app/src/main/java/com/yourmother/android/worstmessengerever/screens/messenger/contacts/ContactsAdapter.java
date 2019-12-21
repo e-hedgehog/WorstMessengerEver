@@ -10,16 +10,26 @@ import android.view.ViewGroup;
 import com.yourmother.android.worstmessengerever.R;
 import com.yourmother.android.worstmessengerever.entities.User;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ContactsAdapter extends RecyclerView.Adapter<ContactHolder> {
 
     private Context mContext;
     private List<User> mContacts;
+    private ContactsListFragment.Mode mFragmentMode;
 
-    public ContactsAdapter(Context context, List<User> contacts) {
+    private Set<User> mSelectedUsers;
+
+    private OnGroupCreatingListener listener;
+
+    private boolean isSelectingStarted = false;
+
+    public ContactsAdapter(Context context, List<User> contacts, ContactsListFragment.Mode fragmentMode) {
         mContext = context;
         mContacts = contacts;
+        mFragmentMode = fragmentMode;
     }
 
 
@@ -28,7 +38,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactHolder> {
     public ContactHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.contact_item, viewGroup, false);
-        return new ContactHolder(view);
+        return new ContactHolder(view, mFragmentMode, this);
     }
 
     @Override
@@ -36,7 +46,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactHolder> {
         if (i == 0)
             contactHolder.bindFirst(mContext, mContacts.get(0));
         else
-            contactHolder.bind(mContext, mContacts.get(i));
+            contactHolder.bind(mContacts.get(i));
     }
 
     @Override
@@ -46,5 +56,44 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactHolder> {
 
     public void setContacts(List<User> contacts) {
         mContacts = contacts;
+    }
+
+    public boolean isSelectingStarted() {
+        return isSelectingStarted;
+    }
+
+    public void setSelectingStarted(boolean selectingStarted) {
+        isSelectingStarted = selectingStarted;
+        listener.onCreatingStateChanged();
+    }
+
+    public void addSelectedUser(User user) {
+        if (mSelectedUsers == null)
+            mSelectedUsers = new HashSet<>();
+        mSelectedUsers.add(user);
+    }
+
+    public void removeSelectedUser(User user) {
+        if (mSelectedUsers != null)
+            mSelectedUsers.remove(user);
+    }
+
+    public void clearSelectedUsers() {
+        if (mSelectedUsers == null || mSelectedUsers.isEmpty())
+            return;
+
+        for (User user: mSelectedUsers)
+            user.setMarked(false);
+
+        mSelectedUsers.clear();
+        notifyDataSetChanged();
+    }
+
+    public void setOnGroupCreatingListener(OnGroupCreatingListener listener) {
+        this.listener = listener;
+    }
+
+    public interface OnGroupCreatingListener {
+        void onCreatingStateChanged();
     }
 }
