@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import com.yourmother.android.worstmessengerever.R;
 import com.yourmother.android.worstmessengerever.entities.User;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -87,6 +89,15 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactHolder> {
 
         mSelectedUsers.clear();
         notifyDataSetChanged();
+    }
+
+    public List<String> getSelectedUsers() {
+//        User[] users = new User[mSelectedUsers.size()];
+//        mSelectedUsers.toArray(users);
+        List<String> users = new ArrayList<>();
+        for (User user: mSelectedUsers)
+            users.add(user.getUserUid());
+        return users;
     }
 
     public void setOnGroupCreatingListener(OnGroupCreatingListener listener) {

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -13,19 +14,25 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.entities.GroupChat;
 import com.yourmother.android.worstmessengerever.entities.User;
 import com.yourmother.android.worstmessengerever.screens.base.BaseFragment;
+import com.yourmother.android.worstmessengerever.screens.messenger.chat.ConversationActivity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ContactsListFragment extends BaseFragment implements BaseFragment.Searchable {
@@ -42,6 +49,8 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
     private Mode mFragmentMode;
 
     private DatabaseReference mUsersReference;
+    private DatabaseReference mConversationsReference;
+    private FirebaseUser mFirebaseUser;
 
     public static Fragment newInstance(Mode mode) {
         Bundle args = new Bundle();
@@ -62,7 +71,12 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
         if (mUsers == null)
             mUsers = new ArrayList<>();
 
-        mUsersReference = FirebaseDatabase.getInstance().getReference("users");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        mFirebaseUser = auth.getCurrentUser();
+
+        mUsersReference = database.getReference("users");
+        mConversationsReference = database.getReference("conversations");
 
         if (mFragmentMode == Mode.CREATE_CONVERSATION)
             setHasOptionsMenu(true);
@@ -97,7 +111,8 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
         MenuItem createItem = menu.findItem(R.id.menu_create_chat);
         createItem.setVisible(mAdapter.isSelectingStarted());
         createItem.setOnMenuItemClickListener(item -> {
-            return false;
+            showEnterTitleDialog();
+            return true;
         });
     }
 
@@ -110,6 +125,28 @@ public class ContactsListFragment extends BaseFragment implements BaseFragment.S
             mAdapter.setContacts(mUsers);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    private void showEnterTitleDialog() {
+        final EditText titleField = new EditText(getActivity());
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.group_title_dialog_label)
+                .setView(titleField)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    List<String> users = mAdapter.getSelectedUsers();
+                    GroupChat groupChat = new GroupChat(titleField.getText().toString(), users);
+                    createGroupChat(groupChat);
+//                    startActivity(ConversationActivity.newIntent(getActivity(), groupChat));
+                })
+                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.dismiss())
+                .create()
+                .show();
+
+    }
+
+    private void createGroupChat(GroupChat groupChat) {
+        mConversationsReference.child("groups").child(groupChat.getTitle()).setValue(groupChat);
     }
 
     private void findContacts() {

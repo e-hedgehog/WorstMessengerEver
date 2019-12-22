@@ -23,6 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.yourmother.android.worstmessengerever.R;
+import com.yourmother.android.worstmessengerever.entities.GroupChat;
 import com.yourmother.android.worstmessengerever.entities.Message;
 import com.yourmother.android.worstmessengerever.entities.User;
 import com.yourmother.android.worstmessengerever.screens.base.BaseFragment;
@@ -35,6 +36,7 @@ public class ConversationFragment extends BaseFragment {
 
     private static final String TAG = "ConversationFragment";
     private static final String ARG_USER = "user";
+    private static final String ARG_GROUP_CHAT = "groupChat";
 
     private ProgressBar mProgressBar;
     private ImageButton mSendButton;
@@ -43,7 +45,9 @@ public class ConversationFragment extends BaseFragment {
     private MessagesAdapter mAdapter;
 
     private List<Message> mMessagesList;
+
     private User mConversationUser;
+    private GroupChat mGroupChat;
 
     private DatabaseReference mConversationsReference;
     private DatabaseReference mSentMessagesReference;
@@ -51,13 +55,25 @@ public class ConversationFragment extends BaseFragment {
     private DatabaseReference mUsersReference;
     private FirebaseUser mFirebaseUser;
 
-    private String mChatType1;
-    private String mChatType2;
+    private String mPrivateChatType1;
+    private String mPrivateChatType2;
+
+    private ChatType mChatType;
 
     @NonNull
     public static ConversationFragment newInstance(User user) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_USER, user);
+
+        ConversationFragment newFragment = new ConversationFragment();
+        newFragment.setArguments(args);
+        return newFragment;
+    }
+
+    @NonNull
+    public static ConversationFragment newInstance(GroupChat groupChat) {
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_GROUP_CHAT, groupChat);
 
         ConversationFragment newFragment = new ConversationFragment();
         newFragment.setArguments(args);
@@ -71,8 +87,17 @@ public class ConversationFragment extends BaseFragment {
         if (mMessagesList == null)
             mMessagesList = new ArrayList<>();
 
-        mConversationUser = (User) getArguments().getSerializable(ARG_USER);
-        Log.i(TAG, mConversationUser == null ? "user is null" : "user not null");
+        if (getArguments() != null) {
+            if (getArguments().containsKey(ARG_USER)) {
+                mConversationUser = (User) getArguments().getSerializable(ARG_USER);
+                mChatType = ChatType.PRIVATE;
+            } else if (getArguments().containsKey(ARG_GROUP_CHAT)){
+                mGroupChat = (GroupChat) getArguments().getSerializable(ARG_GROUP_CHAT);
+                mChatType = ChatType.GROUP;
+            }
+        }
+
+        Log.i(TAG, mGroupChat.toString());
 
         isOnline(getActivity());
 
@@ -80,15 +105,13 @@ public class ConversationFragment extends BaseFragment {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         mFirebaseUser = auth.getCurrentUser();
 
-        mChatType1 = mFirebaseUser.getUid() + "/" + mConversationUser.getUserUid();
-        mChatType2 = mConversationUser.getUserUid() + "/" + mFirebaseUser.getUid();
+        mPrivateChatType1 = mFirebaseUser.getUid() + "/" + mConversationUser.getUserUid();
+        mPrivateChatType2 = mConversationUser.getUserUid() + "/" + mFirebaseUser.getUid();
 
         mConversationsReference = database.getReference("conversations");
-        mSentMessagesReference = database
-                .getReference("conversations").child(mFirebaseUser.getUid())
+        mSentMessagesReference = mConversationsReference.child(mFirebaseUser.getUid())
                 .child(mConversationUser.getUserUid()).child("messages");
-        mReceivedMessagesReference = database
-                .getReference("conversations").child(mConversationUser.getUserUid())
+        mReceivedMessagesReference = mConversationsReference.child(mConversationUser.getUserUid())
                 .child(mFirebaseUser.getUid()).child("messages");
         mUsersReference = database.getReference("users");
 
@@ -148,11 +171,11 @@ public class ConversationFragment extends BaseFragment {
         mConversationsReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(mChatType1))
-                    mConversationsReference.child(mChatType1).child("counters")
+                if (dataSnapshot.hasChild(mPrivateChatType1))
+                    mConversationsReference.child(mPrivateChatType1).child("counters")
                             .child(mFirebaseUser.getUid()).setValue(0);
-                else if (dataSnapshot.hasChild(mChatType2))
-                    mConversationsReference.child(mChatType2).child("counters")
+                else if (dataSnapshot.hasChild(mPrivateChatType2))
+                    mConversationsReference.child(mPrivateChatType2).child("counters")
                             .child(mFirebaseUser.getUid()).setValue(0);
             }
 
@@ -169,17 +192,17 @@ public class ConversationFragment extends BaseFragment {
 //            String chatType2 = mConversationUser.getUserUid() + "/" + mFirebaseUser.getUid();
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.hasChild(mChatType1)) {
+                if (dataSnapshot.hasChild(mPrivateChatType1)) {
                     mSentMessagesReference.push().setValue(message);
-                    updateUnseenCount(dataSnapshot.child(mChatType1), mConversationUser.getUserUid());
-                } else if (dataSnapshot.hasChild(mChatType2)) {
+                    updateUnseenCount(dataSnapshot.child(mPrivateChatType1), mConversationUser.getUserUid());
+                } else if (dataSnapshot.hasChild(mPrivateChatType2)) {
                     mReceivedMessagesReference.push().setValue(message);
-                    updateUnseenCount(dataSnapshot.child(mChatType2), mConversationUser.getUserUid());
+                    updateUnseenCount(dataSnapshot.child(mPrivateChatType2), mConversationUser.getUserUid());
                 } else {
                     mSentMessagesReference.push().setValue(message);
-                    mConversationsReference.child(mChatType1).child("counters")
+                    mConversationsReference.child(mPrivateChatType1).child("counters")
                             .child(mConversationUser.getUserUid()).setValue(1);
-                    mConversationsReference.child(mChatType1).child("counters")
+                    mConversationsReference.child(mPrivateChatType1).child("counters")
                             .child(mFirebaseUser.getUid()).setValue(0);
                 }
             }
@@ -228,6 +251,11 @@ public class ConversationFragment extends BaseFragment {
             long count = (long) countSnapshot.getValue();
             chatSnapshot.getRef().child("counters").child(receiverUid).setValue(count + 1);
         }
+    }
+
+    private enum ChatType {
+        PRIVATE,
+        GROUP
     }
 
 }
