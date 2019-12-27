@@ -90,7 +90,7 @@ public class RegisterFragment extends BaseFragment {
                                 String uid = mAuth.getCurrentUser().getUid();
                                 ColorGenerator generator = ColorGenerator.MATERIAL;
                                 User user = new User(username, email, uid,
-                                        generator.getRandomColor());
+                                        null, generator.getRandomColor());
                                 mUsersReference.child(uid).setValue(user);
 
                                 startActivity(new Intent(getActivity(), MessengerActivity.class));

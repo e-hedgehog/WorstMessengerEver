@@ -6,7 +6,7 @@
     android:layout_height="200dp"
     android:padding="16dp"
     android:gravity="bottom"
-    android:background="@color/colorAccent">
+    android:background="@color/colorPrimaryDark">
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/nav_header_image"

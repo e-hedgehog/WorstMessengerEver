@@ -25,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -106,6 +108,8 @@ public class MessengerFragment extends BaseFragment {
                     mAuth.signOut();
                     Log.i(TAG, "Signed out");
                     return true;
+                case R.id.my_profile:
+                    startActivity(UserProfileActivity.newIntent(getActivity()));
                 default:
                     return true;
             }
@@ -212,12 +216,21 @@ public class MessengerFragment extends BaseFragment {
                         usernameTextView.setText(currentUser.getUsername());
 
                         ImageView imageView = view.findViewById(R.id.nav_header_image);
-                        String firstLetter = currentUser.getUsername()
-                                .substring(0, 1).toUpperCase();
-                        TextDrawable drawable = TextDrawable.builder()
-                                .beginConfig().bold().endConfig()
-                                .buildRound(firstLetter, currentUser.getProfileImageColor());
-                        imageView.setImageDrawable(drawable);
+                        if (currentUser.getImageUrl() != null && !currentUser.getImageUrl().isEmpty()) {
+                            Glide.with(getContext().getApplicationContext())
+                                    .load(currentUser.getImageUrl())
+                                    .centerCrop()
+                                    .fitCenter()
+                                    .apply(RequestOptions.circleCropTransform())
+                                    .into(imageView);
+                        } else {
+                            String firstLetter = currentUser.getUsername()
+                                    .substring(0, 1).toUpperCase();
+                            TextDrawable drawable = TextDrawable.builder()
+                                    .beginConfig().bold().endConfig()
+                                    .buildRound(firstLetter, currentUser.getProfileImageColor());
+                            imageView.setImageDrawable(drawable);
+                        }
                     }
 
                     @Override

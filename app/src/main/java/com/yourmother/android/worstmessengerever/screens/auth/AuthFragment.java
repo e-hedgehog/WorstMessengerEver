@@ -162,7 +162,7 @@ public class AuthFragment extends BaseFragment
                                     ColorGenerator generator = ColorGenerator.MATERIAL;
                                     User user = new User(firebaseUser.getDisplayName(),
                                             firebaseUser.getEmail(), firebaseUser.getUid(),
-                                            generator.getRandomColor());
+                                            null, generator.getRandomColor());
                                     mUsersReference.child(firebaseUser.getUid()).setValue(user);
                                 }
                             }

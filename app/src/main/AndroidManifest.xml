@@ -53,6 +53,13 @@
                 android:value=".screens.messenger.MessengerActivity" />
         </activity>
 
+        <activity android:name=".screens.messenger.UserProfileActivity"
+            android:parentActivityName=".screens.messenger.MessengerActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".screens.messenger.MessengerActivity" />
+        </activity>
+
     </application>
 
 </manifest>

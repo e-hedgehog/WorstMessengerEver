@@ -1,5 +1,8 @@
 package com.yourmother.android.worstmessengerever.screens.messenger.chat;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,6 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.yourmother.android.worstmessengerever.R;
 import com.yourmother.android.worstmessengerever.entities.GroupChat;
 import com.yourmother.android.worstmessengerever.entities.Message;
@@ -35,12 +40,16 @@ import java.util.List;
 public class ConversationFragment extends BaseFragment {
 
     private static final String TAG = "ConversationFragment";
+
     private static final String ARG_USER = "user";
     private static final String ARG_GROUP_CHAT = "groupChat";
+
+    private static final int REQUEST_IMAGE = 1;
 
     private ProgressBar mProgressBar;
     private ImageButton mSendButton;
     private EditText mMessageEditText;
+    private ImageButton mSendImageButton;
     private RecyclerView mRecyclerView;
     private MessagesAdapter mAdapter;
 
@@ -57,6 +66,8 @@ public class ConversationFragment extends BaseFragment {
 
     private String mPrivateChatType1;
     private String mPrivateChatType2;
+
+    private String mMessageKey;
 
     private ChatType mChatType;
 
@@ -97,7 +108,7 @@ public class ConversationFragment extends BaseFragment {
             }
         }
 
-        Log.i(TAG, mGroupChat.toString());
+//        Log.i(TAG, mGroupChat.toString());
 
         isOnline(getActivity());
 
@@ -128,28 +139,19 @@ public class ConversationFragment extends BaseFragment {
 
         mProgressBar = view.findViewById(R.id.conversation_progress_bar);
         mMessageEditText = view.findViewById(R.id.message_field);
+
+        mSendImageButton = view.findViewById(R.id.image_button);
+        mSendImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, REQUEST_IMAGE);
+        });
+
         mSendButton = view.findViewById(R.id.send_button);
         mSendButton.setOnClickListener(v -> {
-            if (isOnline(getActivity()))
-                mUsersReference.child(mFirebaseUser.getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                User currentUser = dataSnapshot.getValue(User.class);
-                                String msg = mMessageEditText.getText().toString().trim();
-                                Message message = new Message(currentUser.getUserUid(),
-                                        currentUser.getUsername(), msg, new Date().getTime());
-                                if (!msg.equals("")) {
-                                    saveNewMessage(message);
-                                    mMessageEditText.setText("");
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-                                Log.i(TAG, "Single Value Event cancelled");
-                            }
-                        });
+            String msg = mMessageEditText.getText().toString().trim();
+            sendMessage(msg, null);
         });
 
         childEventListener(mSentMessagesReference);
@@ -186,20 +188,64 @@ public class ConversationFragment extends BaseFragment {
         });
     }
 
-    private void saveNewMessage(Message message) {
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != Activity.RESULT_OK)
+            return;
+
+        if (requestCode == REQUEST_IMAGE) {
+            Uri imageUri = data.getData();
+            sendMessage(mMessageEditText.getText().toString().trim(), imageUri);
+
+        }
+    }
+
+    private void sendMessage(String messageText, Uri imageUri) {
+        if (isOnline(getActivity()))
+            mUsersReference.child(mFirebaseUser.getUid())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            User currentUser = dataSnapshot.getValue(User.class);
+                            Message message = new Message(currentUser.getUserUid(),
+                                    currentUser.getUsername(), messageText, null, new Date().getTime());
+                            if (!"".equals(messageText) || imageUri != null) {
+                                saveNewMessage(message, imageUri);
+                                mMessageEditText.setText("");
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Log.i(TAG, "Single Value Event cancelled");
+                        }
+                    });
+    }
+
+    private void saveNewMessage(Message message, Uri imageUri) {
         mConversationsReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//            String chatType1 = mFirebaseUser.getUid() + "/" + mConversationUser.getUserUid();
-//            String chatType2 = mConversationUser.getUserUid() + "/" + mFirebaseUser.getUid();
+
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.hasChild(mPrivateChatType1)) {
-                    mSentMessagesReference.push().setValue(message);
+                    if (imageUri == null)
+                        mSentMessagesReference.push().setValue(message);
+                    else
+                        mSentMessagesReference.push().setValue(message, getCompletionListener(message, imageUri, mSentMessagesReference));
                     updateUnseenCount(dataSnapshot.child(mPrivateChatType1), mConversationUser.getUserUid());
                 } else if (dataSnapshot.hasChild(mPrivateChatType2)) {
-                    mReceivedMessagesReference.push().setValue(message);
+                    if (imageUri == null)
+                        mReceivedMessagesReference.push().setValue(message);
+                    else
+                        mReceivedMessagesReference.push().setValue(message, getCompletionListener(message, imageUri, mReceivedMessagesReference));
                     updateUnseenCount(dataSnapshot.child(mPrivateChatType2), mConversationUser.getUserUid());
                 } else {
-                    mSentMessagesReference.push().setValue(message);
+                    if (imageUri == null)
+                        mSentMessagesReference.push().setValue(message);
+                    else
+                        mSentMessagesReference.setValue(message, getCompletionListener(message, imageUri, mSentMessagesReference));
                     mConversationsReference.child(mPrivateChatType1).child("counters")
                             .child(mConversationUser.getUserUid()).setValue(1);
                     mConversationsReference.child(mPrivateChatType1).child("counters")
@@ -212,6 +258,41 @@ public class ConversationFragment extends BaseFragment {
 
             }
         });
+    }
+
+    private void updateMessage(DatabaseReference reference, String key, Message message, String imageUrl) {
+        message.setImageUrl(imageUrl);
+        reference.child(key).setValue(message);
+
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, newInstance(mConversationUser))
+                .commit();
+    }
+
+    private DatabaseReference.CompletionListener getCompletionListener(Message message, Uri imageUri, DatabaseReference reference) {
+        return (databaseError, databaseReference) -> {
+            mMessageKey = databaseReference.getKey();
+            StorageReference storageReference =
+                    FirebaseStorage.getInstance()
+                            .getReference(mFirebaseUser.getUid())
+                            .child(mMessageKey)
+                            .child(imageUri.getLastPathSegment());
+
+            storageReference.putFile(imageUri).continueWithTask(task -> {
+                if (!task.isSuccessful())
+                    throw task.getException();
+
+                return storageReference.getDownloadUrl();
+            }).addOnCompleteListener(getActivity(),
+                    task -> {
+                        if (task.isSuccessful()) {
+                            updateMessage(reference, mMessageKey, message, task.getResult().toString());
+                        } else {
+                            Log.w(TAG, "Image upload task was not successful.",
+                                    task.getException());
+                        }
+                    });
+        };
     }
 
     private void childEventListener(DatabaseReference reference) {

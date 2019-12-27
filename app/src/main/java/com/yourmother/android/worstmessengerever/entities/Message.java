@@ -7,12 +7,14 @@ public class Message implements Comparable<Message> {
     private String mUserUid;
     private String mUsername;
     private String mText;
+    private String mImageUrl;
     private long mDate;
 
-    public Message(String userUid, String username, String text, long date) {
+    public Message(String userUid, String username, String text, String imageUrl, long date) {
         mUserUid = userUid;
         mUsername = username;
         mText = text;
+        mImageUrl = imageUrl;
         mDate = date;
     }
 
@@ -59,5 +61,13 @@ public class Message implements Comparable<Message> {
     @Override
     public String toString() {
         return mText;
+    }
+
+    public String getImageUrl() {
+        return mImageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        mImageUrl = imageUrl;
     }
 }

@@ -2,4 +2,5 @@
 <resources>
     <dimen name="component_margin_8dp">8dp</dimen>
     <dimen name="message_margin_48dp">48dp</dimen>
+    <dimen name="image_size_256dp">256dp</dimen>
 </resources>

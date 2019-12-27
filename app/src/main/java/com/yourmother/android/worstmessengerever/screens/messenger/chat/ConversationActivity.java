@@ -34,13 +34,13 @@ public class ConversationActivity extends SingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        if (getIntent().hasExtra(Intent.EXTRA_USER)) {
+//        if (getIntent().hasExtra(Intent.EXTRA_USER)) {
             User user = (User) getIntent().getSerializableExtra(EXTRA_USER);
             return ConversationFragment.newInstance(user);
-        } else {
-            GroupChat groupChat = (GroupChat) getIntent().getSerializableExtra(EXTRA_GROUP_CHAT);
-            return ConversationFragment.newInstance(groupChat);
-        }
+//        } else {
+//            GroupChat groupChat = (GroupChat) getIntent().getSerializableExtra(EXTRA_GROUP_CHAT);
+//            return ConversationFragment.newInstance(groupChat);
+//        }
     }
 
     @Override
